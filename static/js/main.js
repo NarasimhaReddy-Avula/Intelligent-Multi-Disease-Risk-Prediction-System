@@ -113,7 +113,7 @@ function showError(message) {
     errorSection.style.display = 'block';
 }
 
-function showTab(tabName) {
+function showTab(tabName, event) {
     // Hide all tab contents
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(content => {
@@ -130,7 +130,9 @@ function showTab(tabName) {
     document.getElementById(tabName + '-tab').classList.add('active');
     
     // Add active class to clicked button
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 }
 
 function formatFeatureName(name) {

@@ -20,8 +20,8 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="age">Age (years):</label>
-                            <input type="number" id="age" name="age" min="20" max="80" value="45" required>
-                            <small>20-80 years</small>
+                            <input type="number" id="age" name="age" min="20" max="80" value="45" required aria-describedby="age-desc">
+                            <small id="age-desc">20-80 years</small>
                         </div>
 
                         <div class="form-group">
@@ -34,32 +34,32 @@
 
                         <div class="form-group">
                             <label for="bmi">BMI (kg/m²):</label>
-                            <input type="number" id="bmi" name="bmi" min="15" max="50" step="0.1" value="25.0" required>
-                            <small>15-50 kg/m²</small>
+                            <input type="number" id="bmi" name="bmi" min="15" max="50" step="0.1" value="25.0" required aria-describedby="bmi-desc">
+                            <small id="bmi-desc">15-50 kg/m²</small>
                         </div>
 
                         <div class="form-group">
                             <label for="blood_pressure_systolic">Systolic BP (mmHg):</label>
-                            <input type="number" id="blood_pressure_systolic" name="blood_pressure_systolic" min="80" max="200" value="120" required>
-                            <small>80-200 mmHg</small>
+                            <input type="number" id="blood_pressure_systolic" name="blood_pressure_systolic" min="80" max="200" value="120" required aria-describedby="bp-sys-desc">
+                            <small id="bp-sys-desc">80-200 mmHg</small>
                         </div>
 
                         <div class="form-group">
                             <label for="blood_pressure_diastolic">Diastolic BP (mmHg):</label>
-                            <input type="number" id="blood_pressure_diastolic" name="blood_pressure_diastolic" min="50" max="130" value="80" required>
-                            <small>50-130 mmHg</small>
+                            <input type="number" id="blood_pressure_diastolic" name="blood_pressure_diastolic" min="50" max="130" value="80" required aria-describedby="bp-dia-desc">
+                            <small id="bp-dia-desc">50-130 mmHg</small>
                         </div>
 
                         <div class="form-group">
                             <label for="cholesterol">Cholesterol (mg/dL):</label>
-                            <input type="number" id="cholesterol" name="cholesterol" min="100" max="400" value="200" required>
-                            <small>100-400 mg/dL</small>
+                            <input type="number" id="cholesterol" name="cholesterol" min="100" max="400" value="200" required aria-describedby="chol-desc">
+                            <small id="chol-desc">100-400 mg/dL</small>
                         </div>
 
                         <div class="form-group">
                             <label for="glucose">Blood Glucose (mg/dL):</label>
-                            <input type="number" id="glucose" name="glucose" min="50" max="300" value="100" required>
-                            <small>50-300 mg/dL</small>
+                            <input type="number" id="glucose" name="glucose" min="50" max="300" value="100" required aria-describedby="glucose-desc">
+                            <small id="glucose-desc">50-300 mg/dL</small>
                         </div>
 
                         <div class="form-group">
@@ -97,8 +97,8 @@
 
                         <div class="form-group">
                             <label for="stress_level">Stress Level (1-10):</label>
-                            <input type="number" id="stress_level" name="stress_level" min="1" max="10" value="5" required>
-                            <small>1 (Low) - 10 (High)</small>
+                            <input type="number" id="stress_level" name="stress_level" min="1" max="10" value="5" required aria-describedby="stress-desc">
+                            <small id="stress-desc">1 (Low) - 10 (High)</small>
                         </div>
                     </div>
 
@@ -124,8 +124,8 @@
                     <h2>🔍 AI Explainability Analysis</h2>
                     
                     <div class="tabs">
-                        <button class="tab-button active" onclick="showTab('shap')">SHAP Analysis</button>
-                        <button class="tab-button" onclick="showTab('lime')">LIME Analysis</button>
+                        <button class="tab-button active" onclick="showTab('shap', event)">SHAP Analysis</button>
+                        <button class="tab-button" onclick="showTab('lime', event)">LIME Analysis</button>
                     </div>
 
                     <div id="shap-tab" class="tab-content active">

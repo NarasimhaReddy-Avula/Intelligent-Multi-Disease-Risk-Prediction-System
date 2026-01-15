@@ -4,36 +4,33 @@ Simple test to verify the Flask app can start and respond to requests
 
 import sys
 import os
-import requests
 import time
-import subprocess
+import threading
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 def test_app():
-    """Test the Flask application"""
+    """Test the Flask application using Flask test client"""
     print("=" * 80)
     print("Testing Flask Web Application")
     print("=" * 80)
     
-    print("\n1. Starting Flask server...")
-    # Start the Flask app in the background
-    app_process = subprocess.Popen(
-        ['python', 'app.py'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        cwd=os.path.dirname(os.path.abspath(__file__))
-    )
+    # Import and configure app for testing
+    from app import app, initialize_model
     
-    # Wait for server to start
-    time.sleep(10)
+    print("\n1. Initializing model...")
+    initialize_model()
+    
+    # Configure app for testing
+    app.config['TESTING'] = True
+    client = app.test_client()
     
     try:
         print("\n2. Testing health endpoint...")
-        response = requests.get('http://localhost:5000/health', timeout=5)
+        response = client.get('/health')
         print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.json()}")
+        print(f"   Response: {response.get_json()}")
         
         if response.status_code == 200:
             print("   ✓ Health check passed!")
@@ -42,10 +39,10 @@ def test_app():
             return False
         
         print("\n3. Testing home page...")
-        response = requests.get('http://localhost:5000/', timeout=5)
+        response = client.get('/')
         print(f"   Status Code: {response.status_code}")
         
-        if response.status_code == 200 and 'Multi-Disease' in response.text:
+        if response.status_code == 200 and b'Multi-Disease' in response.data:
             print("   ✓ Home page loaded successfully!")
         else:
             print("   ✗ Home page failed to load!")
@@ -67,16 +64,12 @@ def test_app():
             'stress_level': 8
         }
         
-        response = requests.post(
-            'http://localhost:5000/predict',
-            json=test_data,
-            timeout=30
-        )
+        response = client.post('/predict', json=test_data)
         
         print(f"   Status Code: {response.status_code}")
         
         if response.status_code == 200:
-            result = response.json()
+            result = response.get_json()
             print(f"   ✓ Prediction successful!")
             print(f"   Risk Level: {result.get('prediction')}")
             print(f"   Risk Score: {result.get('risk_score'):.2f}%")
@@ -95,7 +88,7 @@ def test_app():
                 return False
         else:
             print("   ✗ Prediction failed!")
-            print(f"   Error: {response.text}")
+            print(f"   Error: {response.get_json()}")
             return False
         
         print("\n" + "=" * 80)
@@ -105,13 +98,9 @@ def test_app():
         
     except Exception as e:
         print(f"\n✗ Test failed with error: {e}")
+        import traceback
+        traceback.print_exc()
         return False
-    
-    finally:
-        print("\n5. Stopping Flask server...")
-        app_process.terminate()
-        app_process.wait(timeout=5)
-        print("   ✓ Server stopped")
 
 
 if __name__ == "__main__":

@@ -92,7 +92,16 @@ def predict():
             'family_history', 'stress_level'
         ]
         
-        features = [float(data.get(f, 0)) for f in feature_order]
+        features = [float(data.get(f)) for f in feature_order if f in data]
+        
+        # Validate all required features are present
+        if len(features) != len(feature_order):
+            missing_features = [f for f in feature_order if f not in data]
+            return jsonify({
+                'success': False,
+                'error': f'Missing required features: {", ".join(missing_features)}'
+            }), 400
+        
         X_input = np.array(features).reshape(1, -1)
         
         # Make prediction
@@ -123,10 +132,10 @@ def predict():
         error_trace = traceback.format_exc()
         print("Error in prediction:")
         print(error_trace)
+        # Don't expose detailed traces in production
         return jsonify({
             'success': False,
-            'error': str(e),
-            'trace': error_trace
+            'error': 'An error occurred during prediction. Please check your input values.'
         }), 400
 
 
@@ -143,5 +152,8 @@ if __name__ == '__main__':
     # Initialize model before starting the app
     initialize_model()
     
-    # Run the Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Run the Flask app (use debug=False and localhost in production)
+    # For production, use a WSGI server like Gunicorn
+    import os
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='127.0.0.1', port=5000)
