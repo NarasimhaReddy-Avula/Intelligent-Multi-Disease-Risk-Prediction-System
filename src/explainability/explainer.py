@@ -120,16 +120,33 @@ class ModelExplainer:
         
         # Handle different SHAP value formats
         if isinstance(shap_values, list):
-            shap_values = shap_values[1]  # For binary classification, use positive class
+            # For binary classification with TreeExplainer, use positive class
+            if len(shap_values) > 1:
+                shap_values = shap_values[1]
+            else:
+                shap_values = shap_values[0]
+        
+        # Ensure we have a proper numpy array
+        shap_values = np.asarray(shap_values)
         
         if len(shap_values.shape) > 1:
             shap_values = shap_values[0]
+        
+        # Ensure shap_values is a 1D array
+        shap_values = shap_values.flatten()
         
         if hasattr(X_instance, 'values'):
             X_instance = X_instance.values
         
         if len(X_instance.shape) > 1:
             X_instance = X_instance.flatten()
+        
+        # Verify we have the right number of features
+        if len(shap_values) != len(self.feature_names):
+            print(f"Warning: SHAP values length ({len(shap_values)}) doesn't match feature names ({len(self.feature_names)})")
+            # Use minimum to avoid index errors
+            min_len = min(len(shap_values), len(self.feature_names))
+            shap_values = shap_values[:min_len]
         
         # Create waterfall plot
         plt.figure(figsize=(10, 6))
@@ -138,8 +155,14 @@ class ModelExplainer:
         indices = np.argsort(np.abs(shap_values))[::-1][:max_display]
         
         # Create the waterfall data
-        features = [self.feature_names[i] if self.feature_names else f"Feature {i}" for i in indices]
-        values = shap_values[indices]
+        features = []
+        values = []
+        for i in range(len(indices)):
+            idx = int(indices[i])
+            if idx < len(self.feature_names):
+                feature_name = self.feature_names[idx]
+                features.append(feature_name)
+                values.append(float(shap_values[idx]))
         
         # Plot
         colors = ['red' if v > 0 else 'blue' for v in values]
@@ -209,23 +232,38 @@ class ModelExplainer:
             shap_values = self.explain_shap(X_instance)
             
             if isinstance(shap_values, list):
-                shap_values = shap_values[1]
+                # For binary classification with TreeExplainer, use positive class
+                if len(shap_values) > 1:
+                    shap_values = shap_values[1]
+                else:
+                    shap_values = shap_values[0]
+            
+            # Ensure we have a proper numpy array
+            shap_values = np.asarray(shap_values)
             
             if len(shap_values.shape) > 1:
                 shap_values = shap_values[0]
             
             # Ensure shap_values is a 1D array
-            shap_values = np.asarray(shap_values).flatten()
+            shap_values = shap_values.flatten()
+            
+            # Verify we have the right number of features
+            if len(shap_values) != len(self.feature_names):
+                print(f"Warning: SHAP values length ({len(shap_values)}) doesn't match feature names ({len(self.feature_names)})")
+                # Use minimum to avoid index errors
+                min_len = min(len(shap_values), len(self.feature_names))
+                shap_values = shap_values[:min_len]
             
             # Get top features by absolute SHAP value
             indices = np.argsort(np.abs(shap_values))[::-1][:top_n]
             
             top_features = []
             for i in range(len(indices)):
-                idx = indices[i]
-                feature_name = self.feature_names[idx] if self.feature_names else f"Feature {idx}"
-                impact = shap_values[idx]
-                top_features.append((feature_name, float(impact)))
+                idx = int(indices[i])
+                if idx < len(self.feature_names):
+                    feature_name = self.feature_names[idx]
+                    impact = float(shap_values[idx])
+                    top_features.append((feature_name, impact))
             
             return top_features
         

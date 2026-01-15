@@ -43,9 +43,26 @@ def initialize_model():
     df = generate_sample_data(n_samples=1000)
     X_train, _ = preprocess_data(df)
     
-    # Initialize explainer with the first model in the ensemble
+    # Create a wrapper class that handles scaling internally
+    class ScaledModelWrapper:
+        def __init__(self, model, scaler):
+            self.model = model
+            self.scaler = scaler
+        
+        def predict(self, X):
+            X_scaled = self.scaler.transform(X)
+            return self.model.predict(X_scaled)
+        
+        def predict_proba(self, X):
+            X_scaled = self.scaler.transform(X)
+            return self.model.predict_proba(X_scaled)
+    
+    # Get the first model from ensemble and wrap it
     primary_model = list(model.models.values())[0]
-    explainer = ModelExplainer(primary_model, model.scaler.transform(X_train), model.feature_names)
+    wrapped_model = ScaledModelWrapper(primary_model, model.scaler)
+    
+    # Initialize explainer with unscaled data
+    explainer = ModelExplainer(wrapped_model, X_train.values, model.feature_names)
     
     print("Model and explainer initialized!")
 
@@ -102,9 +119,14 @@ def predict():
         return jsonify(response)
     
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print("Error in prediction:")
+        print(error_trace)
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': str(e),
+            'trace': error_trace
         }), 400
 
 
