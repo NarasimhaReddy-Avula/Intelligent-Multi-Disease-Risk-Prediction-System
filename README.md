@@ -197,7 +197,7 @@ A comprehensive AI platform that simultaneously predicts risks for **four major 
 - 🫁 **Liver Disease** - Hepatic function risk analysis
 
 ### 🌟 Key Innovation: Real-World Clinical Workflow
-**Handles incomplete patient data** - works with whatever tests are available (vitals only, partial labs, or complete panel). **Multi-modal input** - structured lab values + binary checklists (medications) + NLP text (lifestyle). **Comorbidity-aware** - models disease interactions (diabetes → kidney damage).
+**Handles incomplete patient data** - works with whatever tests are available (vitals only, partial labs, or complete panel). **Multi-modal input** - structured lab values + binary checklists (medications) + NLP text (lifestyle). **Comorbidity-aware** - models disease interactions (diabetes → kidney damage). **LLM-enhanced explanations** - converts technical SHAP outputs to patient-friendly language with personalized diet and lifestyle recommendations.
 
 ### Key Innovation
 **First undergraduate multi-disease AI system** combining:
@@ -213,8 +213,9 @@ A comprehensive AI platform that simultaneously predicts risks for **four major 
 | Category | Technologies |
 |----------|-------------|
 | **ML/DL** | PyTorch, scikit-learn, XGBoost, LightGBM, Optuna |
-| **NLP** | Transformers, PubMedBERT, BioMistral |
-| **XAI** | SHAP, GPT-4/Llama for explanations |
+| **NLP** | Transformers, PubMedBERT, BioMistral (lifestyle extraction) |
+| **XAI** | SHAP (technical explanations) |
+| **LLM** | GPT-4/Llama (human-friendly explanations + diet recommendations) |
 | **Backend** | FastAPI, Uvicorn, Pydantic |
 | **Frontend** | Streamlit |
 | **Data** | Pandas, NumPy, Polars |
