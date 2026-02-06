@@ -23,22 +23,22 @@
 ### Semester 1 Completion Status
 
 ```
-Week 1  [░░░░░░░░░░] 0%   Setup & Environment
-Week 2  [░░░░░░░░░░] 0%   Exploratory Data Analysis
-Week 3  [░░░░░░░░░░] 0%   Dataset Fusion - Part 1
-Week 4  [░░░░░░░░░░] 0%   Dataset Fusion - Part 2
-Week 5  [░░░░░░░░░░] 0%   Feature Engineering
-Week 6  [░░░░░░░░░░] 0%   ML Baselines
-Week 7  [░░░░░░░░░░] 0%   Deep Learning
-Week 8  [░░░░░░░░░░] 0%   NLP Integration
-Week 9  [░░░░░░░░░░] 0%   Hybrid Model & XAI
-Week 10 [░░░░░░░░░░] 0%   API Development
-Week 11 [░░░░░░░░░░] 0%   Web Application
-Week 12 [░░░░░░░░░░] 0%   Testing & Refinement
-Week 13 [░░░░░░░░░░] 0%   Documentation
-Week 14 [░░░░░░░░░░] 0%   Final Submission
+Week 1  [██████████] 100%  Setup & Environment ✅
+Week 2  [██████████] 100%  Exploratory Data Analysis ✅
+Week 3  [░░░░░░░░░░] 0%    Dataset Fusion - Part 1
+Week 4  [░░░░░░░░░░] 0%    Dataset Fusion - Part 2
+Week 5  [░░░░░░░░░░] 0%    Feature Engineering
+Week 6  [░░░░░░░░░░] 0%    ML Baselines
+Week 7  [░░░░░░░░░░] 0%    Deep Learning
+Week 8  [░░░░░░░░░░] 0%    NLP Integration
+Week 9  [░░░░░░░░░░] 0%    Hybrid Model & XAI
+Week 10 [░░░░░░░░░░] 0%    API Development
+Week 11 [░░░░░░░░░░] 0%    Web Application
+Week 12 [░░░░░░░░░░] 0%    Testing & Refinement
+Week 13 [░░░░░░░░░░] 0%    Documentation
+Week 14 [░░░░░░░░░░] 0%    Final Submission
 ────────────────────────
-TOTAL   [░░░░░░░░░░] 0%
+TOTAL   [██░░░░░░░░] 14%
 ```
 
 ---
@@ -47,8 +47,8 @@ TOTAL   [░░░░░░░░░░] 0%
 
 | # | Milestone | Target Date | Status | Completion Date |
 |---|-----------|-------------|--------|-----------------|
-| 1 | Environment Setup | Week 1 | ⬜ Not Started | |
-| 2 | EDA Complete | Week 2 | ⬜ Not Started | |
+| 1 | Environment Setup | Week 1 | ✅ Complete | Jan 23, 2025 |
+| 2 | EDA Complete | Week 2 | ✅ Complete | Jan 27, 2025 |
 | 3 | Unified Dataset Ready | Week 4 | ⬜ Not Started | |
 | 4 | ML Baseline >85% AUC | Week 6 | ⬜ Not Started | |
 | 5 | FT-Transformer Trained | Week 7 | ⬜ Not Started | |

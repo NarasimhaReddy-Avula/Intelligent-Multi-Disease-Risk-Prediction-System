@@ -1,0 +1,113 @@
+[
+  {
+    "id": 1,
+    "disease_context": "heart",
+    "text": "I smoke about 10 cigarettes per day and drink alcohol on weekends. I work a sedentary desk job and rarely exercise. My father had a heart attack at age 60.",
+    "labels": {
+      "smoking": {"status": "current", "frequency": "10 cigarettes/day"},
+      "alcohol": {"status": "regular", "frequency": "weekends"},
+      "physical_activity": "sedentary",
+      "family_history": ["cardiovascular_disease"]
+    }
+  },
+  {
+    "id": 2,
+    "disease_context": "diabetes",
+    "text": "I've had 6 pregnancies. My father and two siblings have type 2 diabetes. I don't exercise regularly and eat a lot of processed foods.",
+    "labels": {
+      "pregnancies": 6,
+      "family_history": ["diabetes"],
+      "physical_activity": "low",
+      "diet": "poor"
+    }
+  },
+  {
+    "id": 3,
+    "disease_context": "kidney",
+    "text": "I have type 2 diabetes for 15 years, not well controlled. High blood pressure for 10 years. My father had kidney failure. I work in a paint factory with exposure to solvents. I smoke about 15 cigarettes daily for 25 years.",
+    "labels": {
+      "comorbidities": ["diabetes", "hypertension"],
+      "family_history": ["chronic_kidney_disease"],
+      "smoking": {"status": "current", "frequency": "15 cigarettes/day", "duration": "25 years"},
+      "occupational_exposure": "solvents"
+    }
+  },
+  {
+    "id": 4,
+    "disease_context": "liver",
+    "text": "I drink 4-5 beers daily for the past 20 years. Recently noticed yellowing of eyes and dark urine. I feel constantly fatigued. No family history of liver disease.",
+    "labels": {
+      "alcohol": {"status": "heavy", "frequency": "4-5 beers/day", "duration": "20 years"},
+      "symptoms": ["jaundice", "dark_urine", "fatigue"],
+      "family_history": []
+    }
+  },
+  {
+    "id": 5,
+    "disease_context": "heart",
+    "text": "Non-smoker, exercise 3 times weekly, mostly vegetarian diet. My mother had high cholesterol. I experience occasional chest discomfort during physical activity.",
+    "labels": {
+      "smoking": {"status": "never"},
+      "physical_activity": "moderate",
+      "diet": "good",
+      "family_history": ["hyperlipidemia"],
+      "symptoms": ["chest_pain"]
+    }
+  },
+  {
+    "id": 6,
+    "disease_context": "diabetes",
+    "text": "I'm overweight, eat a lot of sugary foods and sodas. My grandmother had diabetes. I rarely exercise due to knee pain. I had gestational diabetes during my last pregnancy 5 years ago.",
+    "labels": {
+      "diet": "poor",
+      "physical_activity": "low",
+      "family_history": ["diabetes"],
+      "medical_history": ["gestational_diabetes"]
+    }
+  },
+  {
+    "id": 7,
+    "disease_context": "kidney",
+    "text": "I take ibuprofen daily for arthritis for the past 10 years. I have diabetes and take metformin. My diet is high in salt and processed meats. I drink about 4-5 cups of coffee daily but limited water intake.",
+    "labels": {
+      "medications": ["NSAIDs", "metformin"],
+      "comorbidities": ["diabetes", "arthritis"],
+      "diet": "poor",
+      "fluid_intake": "low_water"
+    }
+  },
+  {
+    "id": 8,
+    "disease_context": "liver",
+    "text": "Former heavy drinker, quit 2 years ago after doctor's warning. I had hepatitis B infection 10 years ago, treated successfully. Family history of cirrhosis. Currently experiencing fatigue and loss of appetite.",
+    "labels": {
+      "alcohol": {"status": "former", "quit_date": "2_years_ago"},
+      "medical_history": ["hepatitis_B"],
+      "family_history": ["cirrhosis"],
+      "symptoms": ["fatigue", "loss_of_appetite"]
+    }
+  },
+  {
+    "id": 9,
+    "disease_context": "heart",
+    "text": "I'm a 55-year-old male. I smoke 1 pack per day for 30 years. High stress job, work 60+ hours weekly. I eat fast food regularly and sleep only 5 hours per night. Brother had bypass surgery at age 50.",
+    "labels": {
+      "smoking": {"status": "current", "frequency": "1 pack/day", "duration": "30 years"},
+      "stress": "high",
+      "diet": "poor",
+      "sleep": "insufficient",
+      "family_history": ["cardiovascular_disease"]
+    }
+  },
+  {
+    "id": 10,
+    "disease_context": "diabetes",
+    "text": "I exercise regularly and maintain a healthy diet. However, both my parents have type 2 diabetes. I recently noticed increased thirst and frequent urination. I'm also experiencing unexplained weight loss.",
+    "labels": {
+      "physical_activity": "regular",
+      "diet": "good",
+      "family_history": ["diabetes"],
+      "symptoms": ["polydipsia", "polyuria", "weight_loss"]
+    }
+  }
+]

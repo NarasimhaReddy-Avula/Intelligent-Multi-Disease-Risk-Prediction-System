@@ -48,6 +48,27 @@ env/
 # Jupyter Notebook
 # ===========================================
 .ipynb_checkpoints/
+
+# ===========================================
+# Reports & Documentation (Work in Progress)
+# ===========================================
+docs/*.tex
+docs/*.pdf
+docs/thesis/
+
+# ===========================================
+# Large Data Files (Too big for Git)
+# ===========================================
+data/raw/ChatDoctor/*.json
+data/raw/ChatDoctor/*.csv
+data/raw/MTS-Dialog/
+datasets/unified/*.csv
+datasets/*.csv
+
+# ===========================================
+# Excel Files
+# ===========================================
+*.xlsx
 *.ipynb_checkpoints
 
 # ===========================================
