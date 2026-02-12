@@ -60,10 +60,14 @@ def load_kidney_dataset() -> pd.DataFrame:
     """
     Load the Chronic Kidney Disease dataset.
     
+    Note: The filename contains a typo ('Dsease' instead of 'Disease')
+    but we keep it as-is to match the existing project convention.
+    
     Returns:
         pd.DataFrame: Kidney disease dataset with 1,659 samples
     """
     try:
+        # Note: 'Dsease' typo is intentional - matches existing filename
         filepath = DATASETS_DIR / 'Chronic_Kidney_Dsease_data.csv'
         df = pd.read_csv(filepath)
         logger.info(f"✅ Loaded kidney dataset: {df.shape}")

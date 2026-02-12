@@ -21,7 +21,7 @@ According to the project documentation, you need these 4 datasets:
 - **Expected samples:** 100,000 rows
 
 ### 3. Kidney Disease (1,659 samples)
-- **Filename:** `datasets/Chronic_Kidney_Dsease_data.csv`
+- **Filename:** `datasets/Chronic_Kidney_Dsease_data.csv` *(Note: 'Dsease' typo is intentional)*
 - **Source:** Chronic Kidney Disease dataset
 - **Expected samples:** ~1,600 rows
 
