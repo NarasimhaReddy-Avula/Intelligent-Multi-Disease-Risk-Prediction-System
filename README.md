@@ -9,6 +9,16 @@
 
 ---
 
+## 🚀 **"What Should I Do?" → [START HERE!](START_HERE.md)**
+
+**Current Week:** Week 3 - Data Preprocessing  
+**Quick Links:**
+- 📖 [Comprehensive Guide](NEXT_STEPS.md) - Detailed instructions with code
+- ✅ [Daily Checklist](WEEK_3_CHECKLIST.md) - Track your daily progress
+- 📁 [Dataset Setup](DATASET_SETUP_REQUIRED.md) - If datasets aren't ready yet
+
+---
+
 ##  Project Overview
 
 A multi-disease AI healthcare platform that predicts risk for:
