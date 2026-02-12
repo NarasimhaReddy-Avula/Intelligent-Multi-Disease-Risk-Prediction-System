@@ -1,0 +1,194 @@
+% =============================================================================
+% WEEK 3 PROGRESS REPORT - Multi-Disease AI Healthcare Risk Prediction Platform
+% =============================================================================
+% Authors: Avula Lakshmi Narasimha Reddy, Rayapu Nishanth
+% Institution: IIIT Sri City
+% Date: February 2026
+% =============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+
+% Page geometry
+\geometry{margin=1in}
+
+% Title
+\title{
+    \textbf{Week 3 Progress Report}\\[0.3cm]
+    \large Multi-Disease AI Healthcare Risk Prediction Platform
+}
+
+\author{
+    Avula Lakshmi Narasimha Reddy \and Rayapu Nishanth\\[0.2cm]
+    Indian Institute of Information Technology, Sri City
+}
+
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Week 3 focused on two critical tasks: (1) addressing class imbalance in the kidney disease dataset using SMOTE oversampling, and (2) designing a unified schema to map all four disease datasets (Heart, Diabetes, Kidney, Liver) into a standardized 24-feature format for multi-disease risk prediction.
+
+\section{Kidney Dataset Class Balancing}
+
+\subsection{The Imbalance Problem}
+
+The Chronic Kidney Disease dataset exhibited severe class imbalance with 1,524 CKD patients and only 135 healthy samples—an 11.29:1 ratio. This imbalance would cause models to achieve high accuracy by simply predicting all samples as CKD, without learning meaningful patterns.
+
+\subsection{SMOTE Application}
+
+We applied Synthetic Minority Over-sampling Technique (SMOTE) with a 1:3 ratio to address this imbalance. SMOTE generates synthetic minority class samples by interpolating between existing samples and their k-nearest neighbors, creating realistic data points that preserve the underlying distribution.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.95\textwidth]{figures/kidney/smote_before_after_comparison.png}
+\fbox{\parbox{0.95\textwidth}{\centering\vspace{5cm}\textbf{[INSERT FIGURE]}\\ SMOTE Before/After Class Distribution Comparison\vspace{5cm}}}
+\caption{Class distribution comparison: Before SMOTE (left) showing 11.29:1 imbalance (135 healthy vs 1,524 CKD) and After SMOTE (right) showing 3:1 ratio (508 healthy vs 1,524 CKD). SMOTE generated 373 synthetic healthy samples.}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{SMOTE Summary}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Before} & \textbf{After} \\
+\midrule
+Total Samples & 1,659 & 2,032 \\
+Healthy & 135 (8.1\%) & 508 (25.0\%) \\
+CKD & 1,524 (91.9\%) & 1,524 (75.0\%) \\
+Ratio & 11.29:1 & 3.00:1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Unified Schema Design}
+
+\subsection{Motivation and Architecture}
+
+Our multi-disease platform aims to predict four disease risks simultaneously using a single FT-Transformer model. This approach requires a unified feature representation that can accommodate the heterogeneous nature of our datasets while maintaining clinical validity.
+
+\textbf{Key Design Goals:}
+\begin{enumerate}
+    \item \textbf{Multi-Disease Learning}: Enable knowledge transfer across related conditions (e.g., diabetes and kidney disease share metabolic pathways)
+    \item \textbf{Graceful Missing Data Handling}: Disease-specific biomarkers (e.g., liver enzymes) are missing in non-liver datasets—FT-Transformer's attention mechanism naturally handles this sparsity
+    \item \textbf{Clinical Interpretability}: Each feature maps to a recognized clinical biomarker with established normal ranges
+    \item \textbf{NLP Integration Ready}: Structured biomarkers separated from lifestyle factors, which will be extracted from clinical text (Week 8)
+\end{enumerate}
+
+\subsection{The 24-Feature Schema}
+
+We designed the schema by analyzing all four datasets and selecting features based on three criteria: (1) clinical relevance, (2) overlap across datasets, and (3) predictive power identified through EDA.
+
+\begin{table}[H]
+\centering
+\caption{Unified Schema - Feature Categories with Clinical Significance}
+\small
+\begin{tabular}{p{3cm}p{7cm}c}
+\toprule
+\textbf{Category} & \textbf{Features \& Clinical Significance} & \textbf{Count} \\
+\midrule
+\textbf{Demographics} & \textbf{age, gender, bmi} - Fundamental risk factors across all diseases. Age correlates with disease prevalence; gender affects risk profiles (e.g., heart disease); BMI indicates obesity-related complications. & 3 \\
+\midrule
+\textbf{Vital Signs} & \textbf{systolic\_bp, diastolic\_bp} - Hypertension is a risk factor for heart disease, kidney damage, and stroke. Present in 3/4 datasets. & 2 \\
+\midrule
+\textbf{Lipid Panel} & \textbf{cholesterol\_total, hdl, ldl, triglycerides} - Lipid metabolism markers critical for cardiovascular risk. HDL (``good'') and LDL (``bad'') cholesterol inversely affect heart disease risk. Present in diabetes \& kidney datasets. & 4 \\
+\midrule
+\textbf{Glucose Metabolism} & \textbf{glucose\_fasting, hba1c} - Diabetes indicators. HbA1c reflects 3-month glucose average (gold standard). Elevated glucose damages blood vessels, affecting heart, kidneys, and liver. & 2 \\
+\midrule
+\textbf{Kidney Function} & \textbf{serum\_creatinine, bun, gfr, protein\_urine} - GFR is the definitive kidney function measure. Creatinine/BUN indicate waste filtration capacity. Proteinuria signals kidney damage. Kidney-specific markers. & 4 \\
+\midrule
+\textbf{Liver Function} & \textbf{alt, ast, alp, bilirubin\_total, bilirubin\_direct, albumin, total\_protein, ag\_ratio} - Comprehensive liver panel. ALT/AST are enzyme leakage markers (hepatocellular damage). Bilirubin indicates bile processing. Albumin/protein reflect synthetic function. Liver-specific markers. & 8 \\
+\midrule
+\textbf{Hematology} & \textbf{hemoglobin} - Anemia is common in chronic kidney disease (reduced erythropoietin production) and indicates disease severity. & 1 \\
+\midrule
+\textbf{Total} & & \textbf{24} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Feature Overlap and Coverage Strategy}
+
+The schema balances two competing needs:
+\begin{itemize}
+    \item \textbf{Shared Features} (demographics, vitals, lipids, glucose): Present in 2+ datasets, providing strong signals with less missing data. Enable cross-disease learning—e.g., the model learns that high glucose affects both diabetes and kidney risk.
+    \item \textbf{Disease-Specific Biomarkers} (kidney markers, liver enzymes): Present in only one dataset but clinically essential. The FT-Transformer's attention mechanism allows the model to learn when these features are available while making predictions even when they're missing.
+\end{itemize}
+
+\textbf{How Missing Values Enable Specialization:} When predicting kidney disease risk, the model has access to GFR and creatinine (high signal). When predicting heart disease risk on a sample without kidney markers, the model relies on shared features (age, BP, lipids). This sparse representation is natural for attention-based models like FT-Transformer.
+
+\subsection{Key Design Decisions}
+
+\subsubsection{Why Exclude Insulin?}
+
+\textbf{Technical Rationale:}
+\begin{itemize}
+    \item Present only in diabetes dataset (1 of 4) $\rightarrow$ 75\% missing values in unified dataset
+    \item FT-Transformer performance degrades significantly when a single feature has $>$50\% missing values
+    \item Imputation at 75\% missingness introduces more noise than signal
+\end{itemize}
+
+\textbf{Medical Rationale:}
+\begin{itemize}
+    \item Insulin levels are highly variable: timing (fasting vs. postprandial), medication status (exogenous insulin confounds readings), individual metabolism
+    \item HbA1c is the clinical gold standard: reflects 3-month glucose average, more stable and reliable
+    \item HbA1c alone is sufficient for diabetes risk assessment
+\end{itemize}
+
+\subsubsection{Why Reserve Lifestyle Features for NLP?}
+
+\textbf{Strategic Rationale:}
+\begin{itemize}
+    \item \textbf{Data Gap}: Liver dataset completely lacks lifestyle data (smoking, alcohol, physical activity)
+    \item \textbf{Multi-Modal Demonstration}: Extracting lifestyle factors from clinical text (Week 8) showcases NLP capability to the guide—a key BTP differentiator
+    \item \textbf{Real-World Relevance}: Clinical notes often contain rich, unstructured lifestyle information: ``Patient reports smoking 1 pack/day for 20 years, occasional alcohol use''
+    \item \textbf{Model Architecture}: Separating structured biomarkers from text-derived features demonstrates integration of complementary data modalities
+\end{itemize}
+
+\textbf{Lifestyle Features Reserved for Week 8:} smoking\_status, alcohol\_consumption, physical\_activity\_level, family\_history
+
+\subsection{Dataset Mapping Results}
+
+Successfully mapped all four datasets to the unified 24-feature schema:
+
+\begin{table}[H]
+\centering
+\caption{Unified Datasets Summary}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{Samples} & \textbf{Coverage} & \textbf{Output File} \\
+\midrule
+Heart & 70,000 & 29.2\% & heart\_unified.csv \\
+Diabetes & 100,000 & 45.8\% & diabetes\_unified.csv \\
+Liver & 30,691 & 40.9\% & liver\_unified.csv \\
+Kidney & 2,032 & 66.7\% & kidney\_unified.csv \\
+\midrule
+\textbf{Total} & \textbf{202,723} & - & 4 files (16.1 MB) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+Week 3 accomplished two major tasks:
+\begin{enumerate}
+    \item Applied SMOTE to balance kidney dataset from 11.29:1 to 3:1 ratio
+    \item Designed and implemented unified 24-feature schema for all four disease datasets
+\end{enumerate}
+
+\textbf{Next Week (Week 4):} Missing value imputation, dataset combination, feature scaling, and quality assurance validation.
+
+\end{document}
