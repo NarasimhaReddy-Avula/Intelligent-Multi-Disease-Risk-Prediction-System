@@ -63,7 +63,13 @@ data/raw/ChatDoctor/*.json
 data/raw/ChatDoctor/*.csv
 data/raw/MTS-Dialog/
 datasets/unified/*.csv
-datasets/*.csv
+# datasets/*.csv — removed: was deleting core datasets
+
+# Whitelist core dataset files
+!datasets/heart.csv
+!datasets/diabetes.csv
+!datasets/Chronic_Kidney_Dsease_data.csv
+!datasets/liver.csv
 
 # ===========================================
 # Excel Files
@@ -87,9 +93,16 @@ data/raw/*.csv
 data/processed/*.csv
 data/embeddings/*.pkl
 data/embeddings/*.pt
-*.csv
+# *.csv — removed global CSV ignore: was deleting core datasets
+data/embeddings/*.csv
 *.parquet
 *.feather
+
+# Whitelist core dataset files (override any earlier ignores)
+!datasets/heart.csv
+!datasets/diabetes.csv
+!datasets/Chronic_Kidney_Dsease_data.csv
+!datasets/liver.csv
 
 # Keep directory structure
 !data/raw/.gitkeep
