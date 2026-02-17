@@ -1,0 +1,30 @@
+{
+  "dataset": "Diabetes Health Indicators",
+  "rows": 100000,
+  "columns": 31,
+  "target_column": "diagnosed_diabetes",
+  "numeric_features": 24,
+  "categorical_features": 7,
+  "missing_values_pct": 0.0,
+  "duplicate_records": 0,
+  "class_balance": "40.0% / 60.0%",
+  "memory_mb": 55.81,
+  "top_correlations": {
+    "hba1c": 0.6793968301288021,
+    "glucose_postprandial": 0.6298322481689833,
+    "glucose_fasting": 0.5109194052623262,
+    "diabetes_risk_score": 0.2772996576187007,
+    "family_history_diabetes": 0.19792596735900828,
+    "age": 0.13771347859251248,
+    "physical_activity_minutes_per_week": -0.10077383772625807,
+    "bmi": 0.09705708975708494,
+    "systolic_bp": 0.09548053554787839,
+    "waist_to_hip_ratio": 0.07891817178772673
+  },
+  "key_findings": [
+    "Rich dataset with 31 features",
+    "HbA1c and glucose are strongest predictors",
+    "Contains demographics, lifestyle, and lab values",
+    "Diabetes stages available for multi-class analysis"
+  ]
+}
