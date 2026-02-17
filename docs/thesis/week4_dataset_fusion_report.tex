@@ -1,0 +1,699 @@
+% Week 4 Report: Dataset Fusion Part 2
+% Multi-Disease AI Healthcare Risk Prediction Platform
+% Author: [Your Name]
+% Date: February 10, 2026
+
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{enumitem}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Python,
+    showstringspaces=false,
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red}
+}
+
+% Title
+\title{\textbf{Week 4 Technical Report:} \\ 
+       Dataset Fusion Part 2 - Preprocessing Pipeline \\ 
+       \large Multi-Disease AI Healthcare Risk Prediction Platform}
+\author{[Your Name] \\ Roll No: [Your Roll Number] \\ 
+        Supervisor: Dr. R. Selvi \\ 
+        IIIT Sri City}
+\date{February 10, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report documents the preprocessing pipeline developed in Week 4 for the Multi-Disease AI Healthcare Risk Prediction Platform. We detail the complete data fusion process, including missing value handling, feature scaling, quality assurance, and train/validation/test split creation. Critically, we justify our departure from traditional imputation methods by implementing two parallel approaches: a masked version with explicit missingness indicators and a sentinel-based version, enabling comprehensive ablation studies. The final preprocessed dataset comprises 191,363 samples across four diseases, ready for multi-task deep learning and baseline model training.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=============================================================================
+\section{Introduction}
+
+\subsection{Overview}
+Following the successful unification of heterogeneous disease datasets in Week 3, Week 4 focused on addressing the critical challenge of missing values while preparing production-ready datasets. The goal was to create robust, scientifically sound preprocessing pipelines that preserve medical validity while enabling state-of-the-art deep learning approaches.
+
+\subsection{Problem Statement}
+The unified dataset exhibited 60.46\% overall missingness due to structural reasons---different diseases require different diagnostic tests. Traditional imputation methods (mean/median, KNN, MICE) would create \textit{medically invalid data}, as they assume Missing Completely At Random (MCAR) or Missing At Random (MAR), which does not hold in our multi-disease context.
+
+\subsection{Objectives}
+\begin{enumerate}[leftmargin=*]
+    \item Develop missing value handling strategies that preserve medical validity
+    \item Create two parallel dataset versions for comprehensive model comparison
+    \item Implement proper feature scaling while respecting missingness indicators
+    \item Establish rigorous quality assurance protocols
+    \item Generate stratified train/validation/test splits for reproducible experiments
+\end{enumerate}
+
+%=============================================================================
+\section{Methodology}
+
+\subsection{Dataset Combination}
+\subsubsection{Input Data}
+We began by combining four unified datasets created in Week 3:
+
+\begin{table}[H]
+\centering
+\caption{Input Dataset Statistics}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Dataset} & \textbf{Samples} & \textbf{Features} & \textbf{Target} \\
+\midrule
+Diabetes & 100,000 & 24 & diabetes\_risk \\
+Heart Disease & 70,000 & 24 & heart\_disease\_risk \\
+Liver Disease & 30,691 & 24 & liver\_disease\_risk \\
+Kidney Disease & 2,032 & 24 & kidney\_disease\_risk \\
+\midrule
+\textbf{Combined} & \textbf{202,723} & \textbf{24} & \textbf{4 targets} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Combination Strategy}
+Datasets were vertically concatenated using a multi-target schema:
+
+\begin{itemize}
+    \item \textbf{Shared Features:} 24 clinical features (age, BMI, blood pressure, etc.)
+    \item \textbf{Disease Targets:} 4 binary columns (diabetes\_risk, heart\_disease\_risk, liver\_disease\_risk, kidney\_disease\_risk)
+    \item \textbf{Metadata:} source\_dataset column for stratification
+    \item \textbf{Target Encoding:} Each row has one non-NaN target (its disease), other targets are NaN
+\end{itemize}
+
+\textbf{Script:} \texttt{src/data/combine\_datasets.py}
+
+%=============================================================================
+\subsection{Missing Value Analysis}
+
+\subsubsection{Missingness Patterns}
+A comprehensive analysis revealed structured missingness patterns:
+
+\begin{table}[H]
+\centering
+\caption{Missingness by Feature Type}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Feature Category} & \textbf{Missing \%} & \textbf{Pattern} \\
+\midrule
+Universal (age, gender) & 0\% & Complete \\
+Cardiovascular (BP, cholesterol) & 63.4\% & Diabetes/liver patients \\
+Metabolic (glucose, HbA1c) & 65.1\% & Heart/kidney patients \\
+Liver markers (ALT, AST, bilirubin) & 90.4\% & Non-liver patients \\
+Kidney markers (creatinine, GFR) & 99.0\% & Non-kidney patients \\
+\midrule
+\textbf{Overall Dataset} & \textbf{60.46\%} & \textbf{Structural} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Critical Insight: Structural vs Random Missingness}
+Our missingness is \textbf{structural} (Missing By Design), not random:
+
+\begin{itemize}
+    \item \textbf{Cause:} Patients are tested only for relevant disease markers
+    \item \textbf{Example:} Diabetes patients ($n=100,000$) \textit{never received} liver function tests
+    \item \textbf{Implication:} No relationship exists between observed features and missing values
+    \item \textbf{Consequence:} Traditional imputation would fabricate false medical data
+\end{itemize}
+
+\textbf{Script:} \texttt{src/data/analyze\_missing\_values.py}
+
+%=============================================================================
+\subsection{Imputation Strategy}
+
+\subsubsection{Why Traditional Imputation Fails}
+
+\paragraph{Standard Methods Assume Randomness:}
+\begin{itemize}
+    \item \textbf{Mean/Median:} Assumes missing values follow population distribution
+    \item \textbf{KNN Imputation:} Assumes similar patients have similar values for all features
+    \item \textbf{MICE:} Assumes conditional relationships between observed and missing features
+\end{itemize}
+
+\paragraph{Violation in Our Context:}
+Consider a diabetes patient with missing ALT (liver enzyme):
+\begin{itemize}
+    \item KNN would find similar diabetes patients and impute their (non-existent) ALT values
+    \item Result: Fabricated ALT=45 U/L when the patient \textit{was never tested}
+    \item Medical invalidity: Model learns false correlations between diabetes features and imputed liver markers
+\end{itemize}
+
+\subsubsection{Our Dual-Strategy Approach}
+
+We implement \textbf{two parallel preprocessing pipelines} for rigorous comparison:
+
+\begin{table}[H]
+\centering
+\caption{Dual Imputation Strategy}
+\begin{tabular}{p{3cm}p{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Aspect} & \textbf{Masked Version} & \textbf{Sentinel Version} \\
+\midrule
+\textbf{Method} & Value + binary mask pairs & Sentinel value (-999) \\
+\midrule
+\textbf{Columns} & 51 (24 values + 22 masks + 4 targets + 1 metadata) & 29 (24 features + 4 targets + 1 metadata) \\
+\midrule
+\textbf{Encoding} & 
+\texttt{bmi=25.3, bmi\_mask=1} (present) \newline
+\texttt{bmi=0, bmi\_mask=0} (missing) & 
+\texttt{bmi=25.3} (present) \newline
+\texttt{bmi=-999} (sentinel) \\
+\midrule
+\textbf{Best For} & FT-Transformer (attention on masks) & XGBoost, Random Forest \\
+\midrule
+\textbf{Rationale} & Explicit missingness signal for neural attention & Tree splits naturally handle sparse sentinels \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Why Sentinel = -999 (Not -1):}
+After StandardScaler normalization:
+\begin{itemize}
+    \item Real feature values: $\mu \pm 3\sigma$ (approximately [-3, +3])
+    \item Sentinel -1: \textbf{Ambiguous} (overlaps with low normalized values)
+    \item Sentinel -999: \textbf{Unambiguous} (clearly distinguishable)
+\end{itemize}
+
+\textbf{Scripts:}
+\begin{itemize}
+    \item \texttt{src/data/impute\_missing\_values\_masked.py}
+    \item \texttt{src/data/impute\_missing\_values\_sentinel.py}
+\end{itemize}
+
+%=============================================================================
+\subsection{Feature Scaling}
+
+\subsubsection{Scaling Strategy}
+
+\paragraph{Masked Version:}
+\begin{lstlisting}[language=Python]
+# Scale value columns only
+value_cols = ['bmi', 'glucose', 'blood_pressure', ...]
+scaler = StandardScaler()
+scaled_data[value_cols] = scaler.fit_transform(data[value_cols])
+
+# Mask columns remain binary (0/1)
+# No scaling applied to masks
+\end{lstlisting}
+
+\paragraph{Sentinel Version:}
+\begin{lstlisting}[language=Python]
+# Exclude -999 from mean/std calculation
+for col in feature_columns:
+    real_values = data[col][data[col] != -999]
+    scaler.fit(real_values.values.reshape(-1, 1))
+    
+    # Apply only to real values
+    mask = data[col] != -999
+    scaled_data.loc[mask, col] = scaler.transform(
+        data.loc[mask, col].values.reshape(-1, 1)
+    )
+    
+    # Preserve -999 sentinel
+    scaled_data.loc[~mask, col] = -999
+\end{lstlisting}
+
+\subsubsection{Scaler Persistence}
+Fitted scalers saved for inference pipeline:
+\begin{itemize}
+    \item \texttt{models/scaler\_masked.joblib}
+    \item \texttt{models/scaler\_sentinel.joblib}
+\end{itemize}
+
+\textbf{Script:} \texttt{src/data/scale\_features.py}
+
+%=============================================================================
+\subsection{Quality Assurance \& Data Fixes}
+
+\subsubsection{QA Validation Protocol}
+
+Comprehensive checks implemented:
+
+\begin{enumerate}
+    \item \textbf{Duplicate Detection:} Exact row matching across all features
+    \item \textbf{Range Validation:} Medical plausibility checks
+    \item \textbf{NaN Verification:} No unexpected NaN after imputation
+    \item \textbf{Target Distribution:} Class balance analysis
+    \item \textbf{Mask Integrity:} Binary 0/1 verification (masked version)
+    \item \textbf{Sentinel Preservation:} -999 retained post-scaling (sentinel version)
+\end{enumerate}
+
+\subsubsection{Issues Identified \& Resolved}
+
+\begin{table}[H]
+\centering
+\caption{Data Quality Issues and Fixes}
+\begin{tabular}{p{4cm}p{4cm}p{5cm}}
+\toprule
+\textbf{Issue} & \textbf{Original State} & \textbf{Resolution} \\
+\midrule
+\textbf{Target Encoding} & 
+Liver: 1=disease, 2=no disease \newline
+Diabetes: continuous [0.027, 0.672] & 
+Liver: converted 2$\rightarrow$0 \newline
+Diabetes: binarized at 0.5 threshold \\
+\midrule
+\textbf{Duplicates} & 
+11,497 rows (5.7\%) \newline
+- Liver: 11,323 (37\%) \newline
+- Heart: 37 (<0.1\%) & 
+Removed all exact duplicates \newline
+Final: 191,363 unique rows \\
+\midrule
+\textbf{Extreme Values} & 
+BMI up to 55 std \newline
+ALT/AST up to 30$\times$ normal & 
+Validated as medically plausible \newline
+(super obesity, severe cirrhosis) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Reasoning for Duplicate Removal:}
+\begin{itemize}
+    \item Liver dataset duplicates traced to data collection artifact (multiple hospital records)
+    \item Retention would bias model toward liver patterns
+    \item Final 137 near-duplicates retained (from different source datasets, medically valid)
+\end{itemize}
+
+\textbf{Scripts:}
+\begin{itemize}
+    \item \texttt{src/data/qa\_validation.py}
+    \item \texttt{src/data/fix\_data\_issues.py}
+\end{itemize}
+
+%=============================================================================
+\subsection{Train/Validation/Test Splits}
+
+\subsubsection{Split Configuration}
+
+\begin{table}[H]
+\centering
+\caption{Dataset Split Specification}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Split} & \textbf{Ratio} & \textbf{Samples} & \textbf{Purpose} \\
+\midrule
+Training & 70\% & 133,953 & Model parameter learning \\
+Validation & 15\% & 28,705 & Hyperparameter tuning \\
+Test & 15\% & 28,705 & Final unbiased evaluation \\
+\midrule
+\textbf{Total} & \textbf{100\%} & \textbf{191,363} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Stratification Strategy}
+
+\textbf{Stratification by \texttt{source\_dataset}} ensures proportional disease representation:
+
+\begin{table}[H]
+\centering
+\caption{Disease Distribution Across Splits}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Disease} & \textbf{Overall} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
+\midrule
+Diabetes & 52.3\% & 52.3\% & 52.3\% & 52.3\% \\
+Heart & 36.6\% & 36.6\% & 36.6\% & 36.6\% \\
+Liver & 10.1\% & 10.1\% & 10.1\% & 10.1\% \\
+Kidney & 1.1\% & 1.1\% & 1.1\% & 1.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Target Positive Rate Verification}
+
+\begin{table}[H]
+\centering
+\caption{Positive Class Rates Across Splits}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Target} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
+\midrule
+diabetes\_risk & 2.5\% & 2.6\% & 2.8\% \\
+heart\_disease\_risk & 50.2\% & 49.2\% & 49.8\% \\
+liver\_disease\_risk & 71.1\% & 71.3\% & 72.1\% \\
+kidney\_disease\_risk & 76.2\% & 71.1\% & 73.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Data Leakage Prevention}
+
+\begin{itemize}
+    \item \textbf{Same indices} used for both masked and sentinel versions
+    \item \textbf{Scaler fitted only on training data}, applied to val/test
+    \item \textbf{Random seed = 42} for reproducibility
+    \item \textbf{Split indices saved:} \texttt{datasets/splits/split\_indices.joblib}
+\end{itemize}
+
+\textbf{Script:} \texttt{src/data/create\_splits.py}
+
+%=============================================================================
+\section{Results}
+
+\subsection{Final Dataset Statistics}
+
+\begin{table}[H]
+\centering
+\caption{Final Preprocessed Dataset Characteristics}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{Masked} & \textbf{Sentinel} \\
+\midrule
+\textbf{Samples} & 191,363 & 191,363 \\
+\textbf{Features} & 51 & 29 \\
+\textbf{File Size (scaled)} & 98.9 MB & 55.4 MB \\
+\midrule
+\textbf{Train samples} & 133,953 & 133,953 \\
+\textbf{Train file size} & 67.2 MB & 38.3 MB \\
+\midrule
+\textbf{Val samples} & 28,705 & 28,705 \\
+\textbf{Val file size} & 14.4 MB & 8.2 MB \\
+\midrule
+\textbf{Test samples} & 28,705 & 28,705 \\
+\textbf{Test file size} & 14.4 MB & 8.2 MB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Pipeline Summary}
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+Raw Datasets (4)     Combined Dataset      Imputed (2 versions)
+202,723 samples  →   202,723 samples   →   191,363 samples
+                                             (duplicates removed)
+                          ↓
+                    Missing Analysis
+                    60.46% structural
+                          ↓
+                ┌─────────┴─────────┐
+                ↓                   ↓
+         Masked Version      Sentinel Version
+         51 columns          29 columns
+         value + mask        -999 sentinel
+                ↓                   ↓
+         StandardScaler      StandardScaler
+         (preserve masks)    (preserve -999)
+                ↓                   ↓
+         QA Validation       QA Validation
+                ↓                   ↓
+         70/15/15 Split      70/15/15 Split
+         (stratified)        (stratified)
+\end{verbatim}
+\caption{Week 4 Data Processing Pipeline}
+\end{figure}
+
+%=============================================================================
+\section{Rationale \& Future Plans}
+
+\subsection{Why This Approach?}
+
+\subsubsection{Medical Validity}
+\begin{itemize}
+    \item \textbf{No fabricated data:} Imputation would create false medical relationships
+    \item \textbf{Preserves diagnostic uncertainty:} Missing = "not tested", not "unknown value"
+    \item \textbf{Interpretable to clinicians:} Explicit missingness aligns with medical practice
+\end{itemize}
+
+\subsubsection{Machine Learning Optimality}
+\begin{itemize}
+    \item \textbf{FT-Transformer advantage:} Attention mechanism learns feature relevance from masks
+    \item \textbf{Tree-based compatibility:} Sentinel values create natural decision boundaries
+    \item \textbf{Multi-task learning:} Each disease trains on its relevant feature subset
+\end{itemize}
+
+\subsubsection{Research Rigor}
+\begin{itemize}
+    \item \textbf{Ablation study:} Empirical comparison validates design choices
+    \item \textbf{Reproducibility:} Saved split indices and scaler parameters
+    \item \textbf{Defense-ready:} Documented rationale for evaluation panel
+\end{itemize}
+
+%=============================================================================
+\subsection{Future Plan: Week 6-7 Model Training}
+
+\subsubsection{Week 6: Machine Learning Baselines (Sentinel Version)}
+
+\paragraph{Models:}
+\begin{itemize}
+    \item Logistic Regression (interpretable baseline)
+    \item Random Forest (non-linear interactions)
+    \item XGBoost (gradient boosting)
+    \item LightGBM (efficiency comparison)
+\end{itemize}
+
+\paragraph{Why Sentinel Version:}
+\begin{itemize}
+    \item Tree-based models naturally handle -999 as "missing" via split criteria
+    \item Faster training (29 vs 51 features)
+    \item Establishes performance ceiling for traditional ML
+\end{itemize}
+
+\paragraph{Expected Outcome:}
+Target AUC > 0.85 across all four diseases
+
+%-----------------------------------------------------------------------------
+\subsubsection{Week 7: Deep Learning with FT-Transformer (Masked Version)}
+
+\paragraph{Architecture:}
+\begin{itemize}
+    \item \textbf{Input:} 24 feature values + 22 binary masks
+    \item \textbf{Embedding Layer:} Separate embeddings for values and masks
+    \item \textbf{Attention:} Self-attention learns cross-feature dependencies
+    \item \textbf{Multi-Task Heads:} 4 disease-specific output layers
+\end{itemize}
+
+\paragraph{Why Masked Version:}
+\begin{itemize}
+    \item \textbf{Explicit attention signal:} Mask=0 tells model "ignore this feature"
+    \item \textbf{Learnable missingness patterns:} Attention weights adapt per disease
+    \item \textbf{State-of-the-art:} Gorishniy et al. (2021) showed superiority on tabular data
+\end{itemize}
+
+\paragraph{Training Strategy:}
+\begin{lstlisting}[language=Python]
+# Masked multi-task loss
+for disease in [diabetes, heart, liver, kidney]:
+    # Only compute loss where labels exist
+    mask = ~target[disease].isna()
+    loss += criterion(pred[disease][mask], 
+                     target[disease][mask])
+\end{lstlisting}
+
+\paragraph{Expected Outcome:}
+Outperform baseline ML by 3-5 AUC points due to:
+\begin{itemize}
+    \item Non-linear feature interactions
+    \item Shared representations across diseases
+    \item Optimal missingness handling
+\end{itemize}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Week 8: NLP Integration}
+
+\paragraph{Clinical Text Processing:}
+\begin{itemize}
+    \item Extract patient histories from MTS-Dialog and ChatDoctor datasets
+    \item Fine-tune PubMedBERT on medical conversation understanding
+    \item Generate 768-dim embeddings per patient
+\end{itemize}
+
+\paragraph{Hybrid Model Architecture:}
+\begin{verbatim}
+Structured Features → FT-Transformer → [768-dim]
+                                            ↓
+                                       Concatenate
+                                            ↓
+Clinical Text → PubMedBERT ───────────→ [768-dim]
+                                            ↓
+                                     Fusion MLP
+                                            ↓
+                                   4 Disease Heads
+\end{verbatim}
+
+\paragraph{Why Text Improves Predictions:}
+\begin{itemize}
+    \item Captures symptoms not in structured data (fatigue, pain patterns)
+    \item Temporal disease progression from conversation history
+    \item Lifestyle factors mentioned in dialogue
+\end{itemize}
+
+%-----------------------------------------------------------------------------
+\subsubsection{Week 9: Explainability (Dual XAI System)}
+
+\paragraph{SHAP Values (Feature Importance):}
+\begin{itemize}
+    \item Compute Shapley values for each prediction
+    \item Visualize: Which features contributed to risk score?
+    \item Clinical validation: Do important features align with medical knowledge?
+\end{itemize}
+
+\paragraph{LLM Explanations (Natural Language):}
+\begin{itemize}
+    \item Use Groq API (Llama-3-70B) to generate text explanations
+    \item Input: "Patient has BMI=32, glucose=180, BP=140/90. Model predicted diabetes risk=0.87. Explain why."
+    \item Output: "High risk due to: (1) Prediabetic glucose levels, (2) Hypertension, (3) Obese BMI..."
+\end{itemize}
+
+\paragraph{Why Dual XAI:}
+\begin{itemize}
+    \item \textbf{Clinicians:} Need interpretable, trustworthy predictions
+    \item \textbf{Patients:} Require plain-language explanations
+    \item \textbf{Regulatory:} FDA/CE marking requires explainability for medical AI
+\end{itemize}
+
+%=============================================================================
+\section{Discussion}
+
+\subsection{Comparison with Related Work}
+
+\begin{table}[H]
+\centering
+\caption{Missing Value Handling: Literature Comparison}
+\begin{tabular}{p{4cm}p{4.5cm}p{4.5cm}}
+\toprule
+\textbf{Approach} & \textbf{Prior Work} & \textbf{Our Method} \\
+\midrule
+\textbf{Mean/Median} & 
+Breast cancer (UCI): Simple imputation for <5\% missing & 
+Inapplicable (60\% structural missingness) \\
+\midrule
+\textbf{MICE} & 
+MIMIC-III (Johnson 2016): Assumes MAR in ICU time-series & 
+Violates assumptions (Not Missing At Random) \\
+\midrule
+\textbf{Deep Learning Auto-encoders} & 
+TabNet (Arik 2021): Learned imputation & 
+Computationally expensive, risk of overfitting \\
+\midrule
+\textbf{Masking} & 
+FT-Transformer (Gorishniy 2021): Binary masks for attention & 
+\textbf{Adopted with medical justification} \\
+\midrule
+\textbf{Sentinel} & 
+XGBoost documentation: -999 for tree splits & 
+\textbf{Adapted with scaling considerations} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations \& Mitigations}
+
+\begin{enumerate}
+    \item \textbf{Imbalanced Targets:}
+    \begin{itemize}
+        \item Issue: Diabetes 2.8\% positive, Kidney 75\% positive
+        \item Mitigation: Focal loss, class weights, SMOTE during training
+    \end{itemize}
+    
+    \item \textbf{Kidney Disease Underrepresentation:}
+    \begin{itemize}
+        \item Issue: Only 2K kidney samples (1.1\%)
+        \item Mitigation: Transfer learning from larger datasets, synthetic augmentation
+    \end{itemize}
+    
+    \item \textbf{Evaluation on Mixed Missingness:}
+    \begin{itemize}
+        \item Issue: Test set has same structural missingness
+        \item Mitigation: Additional validation on complete-case subset
+    \end{itemize}
+\end{enumerate}
+
+%=============================================================================
+\section{Conclusion}
+
+Week 4 successfully established a rigorous preprocessing pipeline that balances medical validity with machine learning best practices. By rejecting traditional imputation in favor of explicit missingness encoding, we ensure:
+
+\begin{enumerate}
+    \item \textbf{Clinical Integrity:} No fabricated medical data
+    \item \textbf{Model Optimality:} Missingness patterns exploited as informative signals
+    \item \textbf{Research Rigor:} Dual-version approach enables comprehensive ablation studies
+\end{enumerate}
+
+The resulting datasets (191,363 samples, stratified 70/15/15 splits) provide a solid foundation for Weeks 6-9, where baseline ML, deep learning, NLP integration, and explainability modules will be developed and evaluated.
+
+%=============================================================================
+\section{Deliverables}
+
+\subsection{Code Artifacts}
+\begin{itemize}
+    \item \texttt{src/data/combine\_datasets.py}
+    \item \texttt{src/data/analyze\_missing\_values.py}
+    \item \texttt{src/data/impute\_missing\_values\_masked.py}
+    \item \texttt{src/data/impute\_missing\_values\_sentinel.py}
+    \item \texttt{src/data/scale\_features.py}
+    \item \texttt{src/data/qa\_validation.py}
+    \item \texttt{src/data/fix\_data\_issues.py}
+    \item \texttt{src/data/create\_splits.py}
+\end{itemize}
+
+\subsection{Data Artifacts}
+\begin{itemize}
+    \item \texttt{datasets/combined\_unified.csv} (191,363 rows)
+    \item \texttt{datasets/combined\_unified\_masked\_scaled.csv} (98.9 MB)
+    \item \texttt{datasets/combined\_unified\_sentinel\_scaled.csv} (55.4 MB)
+    \item \texttt{datasets/splits/masked/\{train,val,test\}.csv}
+    \item \texttt{datasets/splits/sentinel/\{train,val,test\}.csv}
+    \item \texttt{datasets/splits/split\_indices.joblib}
+\end{itemize}
+
+\subsection{Model Artifacts}
+\begin{itemize}
+    \item \texttt{models/scaler\_masked.joblib}
+    \item \texttt{models/scaler\_sentinel.joblib}
+\end{itemize}
+
+\subsection{Documentation}
+\begin{itemize}
+    \item \texttt{PROGRESS\_TRACKER.md} (updated to 29\% overall completion)
+    \item \texttt{docs/TECHNICAL\_DOCS.md} (Sections 5.1-5.10 added)
+    \item This report: \texttt{docs/thesis/week4\_dataset\_fusion\_report.tex}
+\end{itemize}
+
+%=============================================================================
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+    \item Gorishniy, Y., Rubachev, I., Khrulkov, V., and Babenko, A. (2021). Revisiting Deep Learning Models for Tabular Data. \textit{NeurIPS 2021}.
+    
+    \item Arik, S. Ö., and Pfister, T. (2021). TabNet: Attentive Interpretable Tabular Learning. \textit{AAAI 2021}.
+    
+    \item Johnson, A. E., et al. (2016). MIMIC-III, a freely accessible critical care database. \textit{Scientific Data}, 3(1), 1-9.
+    
+    \item Little, R. J., and Rubin, D. B. (2019). \textit{Statistical Analysis with Missing Data} (3rd ed.). Wiley.
+    
+    \item Chen, T., and Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. \textit{KDD 2016}.
+    
+    \item Van Buuren, S., and Groothuis-Oudshoorn, K. (2011). mice: Multivariate Imputation by Chained Equations in R. \textit{Journal of Statistical Software}, 45(3), 1-67.
+\end{enumerate}
+
+\end{document}
