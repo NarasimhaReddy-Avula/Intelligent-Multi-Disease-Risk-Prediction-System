@@ -116,6 +116,7 @@ models/ml/*.pkl
 models/dl/*.pt
 models/dl/*.pth
 models/embeddings/
+*.joblib
 *.pkl
 *.pt
 *.pth
@@ -192,6 +193,15 @@ temp/
 *.tmp
 *.temp
 *.bak
+
+# ===========================================
+# Local helper artifacts (not for Git)
+# ===========================================
+run_with_env.bat
+EVALUATION_QUICK_GUIDE.md
+notebooks/dl_baselines/week7_results_explainer.ipynb
+notebooks/ml_baselines/
+datasets_evaluated/rejected/*.csv
 
 # ===========================================
 # Docker
