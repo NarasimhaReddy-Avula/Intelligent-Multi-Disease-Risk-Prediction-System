@@ -198,6 +198,12 @@ temp/
 # Local helper artifacts (not for Git)
 # ===========================================
 run_with_env.bat
+
+# ===========================================
+# Experiment artifacts (local)
+# ===========================================
+week7_ft_transformer_artifacts*/
+notebooks/dl_baselines/figures/
 EVALUATION_QUICK_GUIDE.md
 notebooks/dl_baselines/week7_results_explainer.ipynb
 notebooks/ml_baselines/
