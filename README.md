@@ -9,6 +9,16 @@
 
 ---
 
+## 🚀 **"What Should I Do?" → [START HERE!](START_HERE.md)**
+
+**Current Week:** Week 3 - Data Preprocessing  
+**Quick Links:**
+- 📖 [Comprehensive Guide](NEXT_STEPS.md) - Detailed instructions with code
+- ✅ [Daily Checklist](WEEK_3_CHECKLIST.md) - Track your daily progress
+- 📁 [Dataset Setup](DATASET_SETUP_REQUIRED.md) - If datasets aren't ready yet
+
+---
+
 ##  Project Overview
 
 A multi-disease AI healthcare platform that predicts risk for:
@@ -65,11 +75,16 @@ PROJECT/
 |-----------|--------|
 | Environment Setup |  Complete |
 | Dataset Collection |  Complete (202K samples) |
-| EDA |  Not Started |
+| EDA |  Complete (Week 2) |
+| **Data Preprocessing** | **🔄 In Progress (Week 3)** |
 | ML Baselines |  Not Started |
 | Deep Learning |  Not Started |
 | NLP Integration |  Not Started |
 | XAI Implementation |  Not Started |
+
+### 📋 What to Do Next?
+**See [NEXT_STEPS.md](NEXT_STEPS.md)** for detailed guidance on Week 3 tasks  
+**See [WEEK_3_CHECKLIST.md](WEEK_3_CHECKLIST.md)** for daily action items
 
 ---
 
