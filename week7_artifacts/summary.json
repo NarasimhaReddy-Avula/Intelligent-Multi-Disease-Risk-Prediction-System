@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-04-18T06:05:38.572556+00:00",
+  "best_epoch": 38,
+  "best_mean_val_auc": 0.9298,
+  "test_mean_auc": 0.9309749999999999,
+  "test_aucs": {
+    "diabetes_risk": 0.9414,
+    "heart_disease_risk": 0.8132,
+    "liver_disease_risk": 0.9978,
+    "kidney_disease_risk": 0.9715
+  },
+  "xgb_aucs": {
+    "diabetes_risk": 0.9377,
+    "heart_disease_risk": 0.8008,
+    "liver_disease_risk": 0.9989,
+    "kidney_disease_risk": 0.9709
+  },
+  "delta_aucs": {
+    "diabetes_risk": 0.0037,
+    "heart_disease_risk": 0.0124,
+    "liver_disease_risk": -0.0011,
+    "kidney_disease_risk": 0.0006
+  },
+  "model_cfg": {
+    "d_token": 64,
+    "n_heads": 8,
+    "n_layers": 4,
+    "ff_mult": 4,
+    "attn_dropout": 0.1,
+    "ff_dropout": 0.1,
+    "out_dropout": 0.1
+  },
+  "n_features": 48,
+  "n_params": 207236,
+  "pos_weights": {
+    "diabetes_risk": 1.0,
+    "heart_disease_risk": 1.0,
+    "liver_disease_risk": 1.0,
+    "kidney_disease_risk": 1.0
+  },
+  "colabelling_added": {
+    "diabetes_risk": 953,
+    "heart_disease_risk": 2539,
+    "liver_disease_risk": 0,
+    "kidney_disease_risk": 2444
+  },
+  "manual_patients": {
+    "priya_ft": {
+      "diabetes_risk": 0.9777,
+      "heart_disease_risk": 0.5668,
+      "liver_disease_risk": 0.6311,
+      "kidney_disease_risk": 0.6979
+    },
+    "rahul_ft": {
+      "diabetes_risk": 0.407,
+      "heart_disease_risk": 0.4701,
+      "liver_disease_risk": 0.851,
+      "kidney_disease_risk": 0.1627
+    },
+    "arjun_ft": {
+      "diabetes_risk": 0.9797,
+      "heart_disease_risk": 0.8035,
+      "liver_disease_risk": 0.6439,
+      "kidney_disease_risk": 0.9612
+    }
+  },
+  "cross_disease_confirmed": 3,
+  "cross_disease_total": 5
+}

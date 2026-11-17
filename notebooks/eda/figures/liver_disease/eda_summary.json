@@ -1,0 +1,34 @@
+{
+  "dataset": "Liver Disease (Indian Liver Patient Dataset Extended)",
+  "rows": 30691,
+  "columns": 11,
+  "target_column": "Result (1=Disease, 2=No Disease)",
+  "missing_values": 6280,
+  "duplicate_records": 11323,
+  "class_balance": "28.6% / 71.4%",
+  "memory_mb": 4.59,
+  "top_correlations": {
+    "Direct_Bilirubin": 0.2495380585820409,
+    "Total_Bilirubin": 0.2250609165217202,
+    "ALP": 0.1833557447233771,
+    "ALT_SGPT": 0.16591444615290663,
+    "Albumin": -0.16034635589771595,
+    "AST_SGOT": 0.15865993153572816,
+    "AG_Ratio": -0.15835033424216247,
+    "Total_Proteins": -0.03036970963934793,
+    "Age": 0.004759105675219329
+  },
+  "key_findings": [
+    "Compact dataset with 11 features",
+    "Direct bilirubin most predictive",
+    "Albumin and A/G ratio inversely related to disease",
+    "De Ritis ratio useful as derived feature",
+    "Male patients have higher disease rate"
+  ],
+  "preprocessing_notes": [
+    "Fix target encoding (1=Disease, 2=No Disease \u2192 0,1)",
+    "Create derived features (De Ritis ratio, indirect bilirubin)",
+    "Log transform for skewed enzyme values",
+    "Do NOT remove outliers - clinically meaningful"
+  ]
+}

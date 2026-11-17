@@ -1,0 +1,6 @@
+scenario,clinical,n_pos,n_neg,p0_all,p1_source_only,p2_demo_only,p_healthy,cross_disease_signal,status
+Diabetes → Kidney (Diabetic Nephropathy),HbA1c/glucose predicts kidney risk without kidney markers,9000,6000,0.774,0.7741,0.8353,0.5,-0.0612,✗ NOT DETECTED
+Diabetes → Heart (Diabetic Cardiomyopathy),HbA1c/glucose predicts heart risk without heart markers,9000,6000,0.4737,0.5109,0.5314,0.4253,-0.0205,✗ NOT DETECTED
+Kidney → Heart (Cardiorenal Syndrome),GFR/creatinine predicts heart risk without heart markers,230,75,0.6954,0.6626,0.5401,0.5981,0.1224,✓ CONFIRMED
+Liver → Diabetes (NAFLD-Insulin Resistance),Liver enzymes predict diabetes risk without glucose markers,3256,1348,0.6769,0.6745,0.544,0.6199,0.1305,✓ CONFIRMED
+Liver → Heart (NAFLD-Cardiovascular),Liver enzymes predict heart risk without heart markers,3256,1348,0.7988,0.7984,0.5096,0.5574,0.2888,✓ CONFIRMED

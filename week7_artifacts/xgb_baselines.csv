@@ -1,0 +1,5 @@
+disease,target,model,auc
+diabetes,diabetes_risk,XGBoost,0.9377
+heart,heart_disease_risk,XGBoost,0.8008
+liver,liver_disease_risk,XGBoost,0.9989
+kidney,kidney_disease_risk,XGBoost,0.9709

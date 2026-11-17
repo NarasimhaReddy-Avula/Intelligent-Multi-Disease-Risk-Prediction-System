@@ -1,0 +1,25 @@
+# Pinned runtime dependencies for the DEPLOYED system (app + API + PDF report).
+# Verified on macOS (Apple Silicon) with Python 3.11. The saved scaler was pickled
+# under scikit-learn 1.6.x — do not upgrade sklearn without re-pickling.
+# For the full TRAINING environment (torch, transformers, FT-Transformer) use
+# requirements.txt instead — those packages are NOT needed to run the product.
+
+streamlit==1.67.0
+fastapi==0.162.7
+uvicorn==0.54.0
+pydantic==2.14.3
+httpx==0.28.1
+xgboost==3.2.0
+scikit-learn==1.6.1
+joblib==1.6.0
+pandas==3.1.1
+numpy==2.4.6
+scipy==1.17.1
+shap==0.51.0
+matplotlib==3.11.2
+plotly==7.1.0
+fpdf2==2.9.0
+pillow==13.0.0
+requests>=2.31.0
+python-multipart>=0.0.6
+pytest==9.2.0

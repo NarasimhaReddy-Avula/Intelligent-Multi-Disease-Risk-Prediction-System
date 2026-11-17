@@ -1,0 +1,105 @@
+experiment:
+  name: week7_ft_transformer_multi_output
+  objective: "Learn cross-disease feature interrelations with robust calibration under missing inputs"
+  owner: "BTP 2025-2026"
+  random_seed: 42
+  deterministic_mode: true
+
+data:
+  train_file: "datasets/splits/masked/train.csv"
+  val_file: "datasets/splits/masked/val.csv"
+  test_file: "datasets/splits/masked/test.csv"
+  reference_unified_file: "datasets/combined_unified_masked_scaled.csv"
+  source_column: "source_dataset"
+  target_columns:
+    heart: "heart_disease_risk"
+    diabetes: "diabetes_risk"
+    liver: "liver_disease_risk"
+    kidney: "kidney_disease_risk"
+  feature_policy:
+    mode: "masked"
+    include_mask_columns: true
+    exclude_columns:
+      - "heart_disease_risk"
+      - "diabetes_risk"
+      - "liver_disease_risk"
+      - "kidney_disease_risk"
+      - "source_dataset"
+
+model:
+  architecture: "FT-Transformer"
+  mode: "multi-output"
+  outputs:
+    - "heart"
+    - "diabetes"
+    - "liver"
+    - "kidney"
+  shared_encoder: true
+  separate_task_heads: true
+
+training:
+  loss: "weighted_bce"
+  optimizer: "adamw"
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  max_epochs: 60
+  early_stopping_patience: 8
+  monitor_metric: "val_mean_brier"
+  monitor_mode: "min"
+  save_best_only: true
+
+runtime_profiles:
+  local_cpu:
+    batch_size: 512
+    num_workers: 0
+    mixed_precision: false
+    expected_time_single_run: "~2 to 6 hours"
+  colab_gpu:
+    batch_size: 2048
+    num_workers: 2
+    mixed_precision: true
+    expected_time_single_run: "~30 to 90 minutes"
+
+evaluation:
+  primary_metrics:
+    - "auc_roc"
+    - "f1"
+    - "brier"
+    - "ece"
+  calibration_bins: 10
+  report_per_disease: true
+  report_macro_mean: true
+
+stress_test:
+  name: "kidney_partial_input_degradation"
+  comparison_baseline: "week6_xgboost_sentinel"
+  phases:
+    - name: "full_input"
+      remove: []
+    - name: "minus_gfr"
+      remove: ["gfr"]
+    - name: "minus_all_kidney_labs"
+      remove: ["gfr", "serum_creatinine", "bun", "protein_urine"]
+    - name: "minus_kidney_plus_diabetes_signals"
+      remove: ["gfr", "serum_creatinine", "bun", "protein_urine", "hba1c", "glucose_fasting"]
+    - name: "minus_kidney_diabetes_bp"
+      remove: ["gfr", "serum_creatinine", "bun", "protein_urine", "hba1c", "glucose_fasting", "systolic_bp", "diastolic_bp"]
+    - name: "demographics_only"
+      keep_only: ["age", "gender", "bmi"]
+
+artifacts:
+  model_dir: "models/dl/week7_ft_transformer"
+  figure_dir: "notebooks/dl_baselines/figures"
+  metrics_dir: "logs/week7"
+  required_outputs:
+    - "best_model.pt"
+    - "metrics_per_disease.csv"
+    - "calibration_summary.csv"
+    - "degradation_comparison_ft_vs_xgb.png"
+    - "run_metadata.json"
+
+consistency_rules:
+  - "Keep VS Code repo as source of truth for code"
+  - "Use identical split files and seed in local and Colab"
+  - "Record package versions in run_metadata.json"
+  - "Copy back only artifacts to repo; do not fork logic between environments"

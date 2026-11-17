@@ -1,0 +1,242 @@
+# BTP Healthcare AI - Git Ignore
+
+# ===========================================
+# Python
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===========================================
+# Virtual Environments
+# ===========================================
+venv/
+ENV/
+env/
+.venv/
+
+# ===========================================
+# IDE & Editors
+# ===========================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ===========================================
+# Jupyter Notebook
+# ===========================================
+.ipynb_checkpoints/
+
+# ===========================================
+# Reports & Documentation (Work in Progress)
+# ===========================================
+docs/*.tex
+docs/*.pdf
+docs/thesis/
+
+# ===========================================
+# Large Data Files (Too big for Git)
+# ===========================================
+data/raw/ChatDoctor/*.json
+data/raw/ChatDoctor/*.csv
+data/raw/MTS-Dialog/
+datasets/unified/*.csv
+# datasets/*.csv — removed: was deleting core datasets
+
+# Whitelist core dataset files
+!datasets/heart.csv
+!datasets/diabetes.csv
+!datasets/Chronic_Kidney_Dsease_data.csv
+!datasets/liver.csv
+
+# ===========================================
+# Excel Files
+# ===========================================
+*.xlsx
+*.ipynb_checkpoints
+
+# ===========================================
+# Environment Variables
+# ===========================================
+.env
+.env.local
+.env.*.local
+*.env
+
+# ===========================================
+# Data Files (Large)
+# ===========================================
+data/raw/mimic/
+data/raw/*.csv
+data/processed/*.csv
+data/embeddings/*.pkl
+data/embeddings/*.pt
+# *.csv — removed global CSV ignore: was deleting core datasets
+data/embeddings/*.csv
+*.parquet
+*.feather
+
+# Whitelist core dataset files (override any earlier ignores)
+!datasets/heart.csv
+!datasets/diabetes.csv
+!datasets/Chronic_Kidney_Dsease_data.csv
+!datasets/liver.csv
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/embeddings/.gitkeep
+
+# ===========================================
+# Model Weights (Large)
+# ===========================================
+models/ml/*.pkl
+models/dl/*.pt
+models/dl/*.pth
+models/embeddings/
+*.joblib
+*.pkl
+*.pt
+*.pth
+*.h5
+*.onnx
+
+# Keep directory structure
+!models/ml/.gitkeep
+!models/dl/.gitkeep
+
+# ===========================================
+# Logs
+# ===========================================
+logs/
+*.log
+
+# Keep directory structure
+!logs/.gitkeep
+
+# ===========================================
+# Outputs
+# ===========================================
+outputs/reports/*.pdf
+outputs/visualizations/*.png
+outputs/visualizations/*.jpg
+outputs/experiments/
+
+# Keep directory structure
+!outputs/reports/.gitkeep
+!outputs/visualizations/.gitkeep
+!outputs/experiments/.gitkeep
+
+# ===========================================
+# Testing
+# ===========================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ===========================================
+# Documentation Build
+# ===========================================
+docs/_build/
+site/
+
+# ===========================================
+# OS Files
+# ===========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================================
+# Secrets & Credentials
+# ===========================================
+*.pem
+*.key
+credentials.json
+token.json
+secrets/
+
+# ===========================================
+# Temporary Files
+# ===========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+
+# ===========================================
+# Local helper artifacts (not for Git)
+# ===========================================
+run_with_env.bat
+
+# ===========================================
+# Experiment artifacts (local)
+# ===========================================
+week7_ft_transformer_artifacts*/
+notebooks/dl_baselines/figures/
+EVALUATION_QUICK_GUIDE.md
+notebooks/dl_baselines/week7_results_explainer.ipynb
+notebooks/ml_baselines/
+datasets_evaluated/rejected/*.csv
+
+# ===========================================
+# Docker
+# ===========================================
+.docker/
+
+# ===========================================
+# Misc
+# ===========================================
+*.zip
+*.tar.gz
+*.rar
+
+# ── Final-release overrides (Semester 2) ──
+# Deployed model artifacts: app cannot run without them (~4MB)
+!week7_artifacts/*.pkl
+!week7_artifacts/*.joblib
+!week7_artifacts/*.json
+!week7_artifacts/*.md
+# Raw source cohorts are small enough to share (~4MB)
+!datasets/heart.csv
+!datasets/diabetes.csv
+!datasets/liver.csv
+!datasets/Chronic_Kidney_Dsease_data.csv
+# Generated fusion artifacts stay out (large, reproducible)
+datasets/combined_*.csv
+datasets/splits/
+datasets/unified/
+datasets_evaluated/
+models/ml/
+models/dl/
+notebooks/*.csv

@@ -1,0 +1,7 @@
+{
+  "dataset": "Heart Disease (Cardiovascular)",
+  "rows": 70000,
+  "columns": 13,
+  "target_column": "cardio",
+  "missing_values": 0,
+  "duplicate_records": 

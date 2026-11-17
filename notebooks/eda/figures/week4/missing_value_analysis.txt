@@ -1,0 +1,53 @@
+======================================================================
+MISSING VALUE ANALYSIS REPORT
+Week 4 - Step 2
+======================================================================
+
+Dataset: combined_unified.csv
+Total samples: 202,723
+Total features: 24
+Overall missing: 60.46%
+
+----------------------------------------------------------------------
+IMPUTATION STRATEGY
+----------------------------------------------------------------------
+
+COMPLETE (0-5%) - Median imputation:
+  - gender (0.4%)
+  - age (0.0%)
+
+LOW-MEDIUM (5-50%) - KNN imputation (k=5):
+  - triglycerides (49.7%)
+  - hba1c (49.7%)
+  - hdl (49.7%)
+  - ldl (49.7%)
+  - bmi (15.1%)
+  - glucose_fasting (15.1%)
+  - diastolic_bp (15.1%)
+  - systolic_bp (15.1%)
+  - cholesterol_total (15.1%)
+
+HIGH (50%+) - Keep as NaN (FT-Transformer handles):
+  - bun (99.0%)
+  - gfr (99.0%)
+  - protein_urine (99.0%)
+  - hemoglobin (99.0%)
+  - serum_creatinine (99.0%)
+  - alp (85.3%)
+  - bilirubin_total (85.2%)
+  - bilirubin_direct (85.1%)
+  - ag_ratio (85.1%)
+  - alt (85.1%)
+  - albumin (85.1%)
+  - total_protein (85.1%)
+  - ast (85.1%)
+
+----------------------------------------------------------------------
+RATIONALE
+----------------------------------------------------------------------
+
+Disease-specific markers (>50% missing) are kept as NaN because:
+1. They are only present in respective disease datasets
+2. FT-Transformer's attention mechanism handles sparse features naturally
+3. Imputing 70%+ missing values would create artificial patterns
+4. Model learns when markers are present vs absent
